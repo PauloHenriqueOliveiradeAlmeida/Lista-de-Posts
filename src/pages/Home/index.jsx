@@ -1,72 +1,66 @@
 import './styles.css';
-import { Component } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import loadPosts from '../../utils/loadPosts';
 import Posts from '../../components/Posts';
 import Button from '../../components/Button';
 import SearchInput from '../../components/SearchInput';
 
+function Home() {
+  const [allPosts, setAllPosts] = useState([]);
+  const [posts, setPosts] = useState([]);
+  const [postsPerPage] = useState(18);
+  const [searchValue, setSearchValue] = useState("");
 
-class Home extends Component {
-  state = {
-    allPosts: [],
-    posts: [],
-    postsPerPage: 18,
-    searchValue: ""
-  };
+  const noMorePosts = posts.length >= allPosts.length;
 
-  componentDidMount() {
-    this.getPosts()
-  }
+  const filteredPosts = searchValue ?
+    allPosts.filter(post => post.title.toLowerCase().includes(searchValue.toLowerCase())) :
+    posts;
 
-  getPosts = async () => {
+  const getPosts = useCallback(async (postsPerPage) => {
     const posts = await loadPosts();
-    this.setState({
-      allPosts: posts,
-      posts: posts.slice(0, this.state.postsPerPage)
-    });
+    setAllPosts(posts);
+    setPosts(posts.slice(0, postsPerPage));
+  }, []);
+
+  useEffect(() => {
+    getPosts(postsPerPage)
+  }, [getPosts, postsPerPage]);
+
+
+
+
+  const loadMorePosts = () => {
+    setPosts([...posts, ...allPosts.slice(posts.length, posts.length + postsPerPage)]);
   }
 
-  loadMorePosts = () => {
-    const { posts, allPosts, postsPerPage } = this.state;
-    this.setState({
-      posts: [...posts, ...allPosts.slice(posts.length, posts.length + postsPerPage)]
-    });
-  }
-
-  handleChange = (event) => {
+  const handleChange = (event) => {
     const { value } = event.target
-    this.setState({ searchValue: value });
+    setSearchValue(value);
   }
 
-  render() {
-    const { posts, allPosts, searchValue } = this.state
-    const noMorePosts = posts.length >= allPosts.length;
 
-    const filteredPosts = searchValue ?
-      allPosts.filter(post => post.title.toLowerCase().includes(searchValue.toLowerCase())) :
-      posts;
+  return (
+    <div className="container">
 
-    return (
-      <div className="container">
-
-        <div className="search-container">
-          <SearchInput searchValue={searchValue} handleChange={this.handleChange}/>
-          {searchValue && (
-            <h1>Termo de busca: {searchValue}</h1>
-          )}
-        </div>
-
-
-        {filteredPosts.length > 0 ?
-          <Posts posts={filteredPosts} /> :
-          <p>Não existem posts que incluem {searchValue}, tente outro termo</p>
-        }
-        {!searchValue && (
-          <Button value={!noMorePosts ? "Carregar mais" : "Acabaram os posts"} onClick={this.loadMorePosts} disabled={noMorePosts} />
+      <div className="search-container">
+        <SearchInput searchValue={searchValue} handleChange={handleChange} />
+        {searchValue && (
+          <h1>Termo de busca: {searchValue}</h1>
         )}
       </div>
-    );
-  }
+
+
+      {filteredPosts.length > 0 ?
+        <Posts posts={filteredPosts} /> :
+        <p>Não existem posts que incluem {searchValue}, tente outro termo</p>
+      }
+      {!searchValue && (
+        <Button value={!noMorePosts ? "Carregar mais" : "Acabaram os posts"} onClick={loadMorePosts} disabled={noMorePosts} />
+      )}
+    </div>
+  );
 }
+
 
 export default Home;

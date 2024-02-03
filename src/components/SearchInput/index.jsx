@@ -1,3 +1,5 @@
+import P from "prop-types";
+
 import "./styles.css";
 
 function SearchInput({handleChange, searchValue}) {
@@ -12,3 +14,9 @@ function SearchInput({handleChange, searchValue}) {
 }
 
 export default SearchInput;
+
+
+SearchInput.propTypes = {
+	handleChange: P.func.isRequired,
+	searchValue: P.string.isRequired
+}

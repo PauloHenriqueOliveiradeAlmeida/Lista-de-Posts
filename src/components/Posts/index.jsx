@@ -1,3 +1,4 @@
+import P from "prop-types";
 import "./styles.css";
 import PostCard from "../PostCard";
 
@@ -16,3 +17,14 @@ function Posts({ posts }) {
 
 
 export default Posts;
+
+
+Posts.propTypes = {
+	posts: P.arrayOf(
+		P.shape({
+			photo: P.string.isRequired,
+			title: P.string.isRequired,
+			body: P.string.isRequired
+		})
+	)
+}
