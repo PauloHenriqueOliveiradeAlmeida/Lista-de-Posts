@@ -8,7 +8,7 @@ import SearchInput from '../../components/SearchInput';
 function Home() {
   const [allPosts, setAllPosts] = useState([]);
   const [posts, setPosts] = useState([]);
-  const [postsPerPage] = useState(18);
+  const [postsPerPage] = useState(2);
   const [searchValue, setSearchValue] = useState("");
 
   const noMorePosts = posts.length >= allPosts.length;
